@@ -1,0 +1,7 @@
+# VScode
+.vscode/
+
+# Exec
+*.exe
+main
+main.dSYM/
