@@ -2,7 +2,7 @@
 
 It's a matrix in which one element relates in a certain integer value to each different element. The matrix must follow the next characteristics:
 1. **Squared**: The size grows in an uniform way. The amount of rows is the same as the amount of columns.
-2. **Dynamic**: Can grow and decrease in size during execution. It can be done with a linked list in which each element is a linked list.
+2. **Dynamic**: Can grow and decrease in size during execution. It can be don:e with a linked list in which each element is a linked list.
 3. **Relationship Data Type**: Integer in a range from 0 to infinity. 0 means no relationship, whereas !0 means the depth of the relationship.
 4. **Not Commutable**: It can allow commutability, but it isn't by default.
 
