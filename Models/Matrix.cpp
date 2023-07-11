@@ -1,269 +1,328 @@
 #include "../Headers/Matrix.h"
 
 /*
-    Relationship Constructors & Destructors
+    --------------------------------------------------------
+    RELATION CLASS
 */
 
-template <typename Element>
-Matrix<Element>::Row::Relationship::Relationship() {
+template <typename T>
+Matrix<T>::Row::Relation::Relation() {
 
     this->next = nullptr;
-    this->value = 0;
+    this->relation_strenght = 0;
 }
 
-template <typename Element>
-Matrix<Element>::Row::Relationship::~Relationship() { }
+template <typename T>
+Matrix<T>::Row::Relation::~Relation() { }
 
-template <typename Element>
-Matrix<Element>::Row::Relationship* Matrix<Element>::Row::Relationship::get_next() {
+template <typename T>
+Matrix<T>::Row::Relation* Matrix<T>::Row::Relation::get_next() {
 
     return this->next;
 }
 
-template <typename Element>
-void Matrix<Element>::Row::Relationship::set_next( Relationship* next ) {
+template <typename T>
+int Matrix<T>::Row::Relation::get_relation_strenght() {
+
+    return this->relation_strenght;
+}
+
+template <typename T>
+void Matrix<T>::Row::Relation::set_next( Relation* next ) {
 
     this->next = next;
 }
 
-/*
-    Row Constructors & Destructors
-*/
+template <typename T>
+void Matrix<T>::Row::Relation::set_relation_strenght( int relation_strenght ) {
 
-template <typename Element>
-Matrix<Element>::Row::Row( Element* element, int size ) {
-
-    this->first_collumn = nullptr;
-    this->element = element;
-    this->size = size;
-    this->init_relationships();
-
-}
-
-template <typename Element>
-Matrix<Element>::Row::~Row() {
-
-    delete this->element;
-    for ( int relationship_index = this->size; relationship_index >= 0; relationship_index-- ) {
-
-        this->remove( relationship_index );
-
-    }
+    this->relation_strenght = relation_strenght;
 }
 
 /*
-    Row Management Methods
+    --------------------------------------------------------
+    ROW CLASS
 */
 
-template <typename Element>
-void Matrix<Element>::Row::init_relationships() {
+template <typename T>
+Matrix<T>::Row::Row( T* elem ) {
 
-    Relationship* relation_ptr = this->first_collumn;
-
-    while ( relation_ptr ) {
-
-        relation_ptr = new Relationship();
-        relation_ptr = relation_ptr->get_next();
-
-    }
+    this->elem = elem;
+    this->next = nullptr;
+    this->first_relation = nullptr;
 }
 
-template <typename Element>
-void Matrix<Element>::Row::set_next( Row* next ) {
+template <typename T>
+Matrix<T>::Row::~Row() {
 
-    this->next = next;
-}
+    delete this->elem;
+    Relation* r_ptr = this->first_relation;
+    
+    while ( this->first_relation ) {
 
-template <typename Element>
-Matrix<Element>::Row* Matrix<Element>::Row::get_next() {
+        r_ptr = this->first_relation;
 
-    return this->next;
-}
+        while ( r_ptr->get_next()->get_next() ) {
 
-template <typename Element>
-bool Matrix<Element>::Row::remove( int collumn ) {
+            r_ptr = r_ptr->get_next();
 
-    if ( this->first_collumn ) {
-
-        Relationship* relation_ptr;
-
-        if ( collumn == 0 ) {
-
-            relation_ptr = this->first_collumn;
-            this->first_collumn = this->first_collumn->get_next();
-
-        } else {
-
-            Relationship* before_relation_ptr = this->first_collumn;
-            int i = 0;3
-            while ( before_relation_ptr
-            && ( i + 1 ) < collumn ) {
-
-                before_relation_ptr = before_relation_ptr->get_next();
-                i++;
-
-            }
-
-            if ( ( i + 1 ) == collumn ) {
-
-                relation_ptr = before_relation_ptr->get_next();
-                before_relation_ptr->set_next( relation_ptr->get_next() );
-
-            } else {
-
-                return false;
-
-            }
         }
-        relation_ptr->set_next( nullptr );
+        delete r_ptr->get_next();
+        r_ptr->set_next( nullptr );
+    }
+}
 
-        delete relation_ptr;
+template <typename T>
+Matrix<T>::Row* Matrix<T>::Row::get_next() {
+
+    return this->next;
+}
+
+template <typename T>
+T* Matrix<T>::Row::get_elem() {
+
+    return this->elem;
+}
+
+template <typename T>
+int Matrix<T>::Row::get_relation( int elem_i ) {
+
+    Relation* rel_ptr = this->find_rel( elem_i );
+
+    if ( rel_ptr ) {
+
+        return rel_ptr->get_relation_strenght();
+
+    }
+    return -1;
+}
+
+template <typename T>
+void Matrix<T>::Row::set_next( Row* next ) {
+
+    this->next = next;
+}
+
+template <typename T>
+void Matrix<T>::Row::set_elem( T* elem ) {
+
+    this->elem = elem;
+}
+
+template <typename T>
+bool Matrix<T>::Row::set_relation( int i_elem, int strength ) {
+
+    Relation* r_ptr = this->find_rel( i_elem );
+
+    if ( r_ptr ) {
+
+        r_ptr->set_relation_strenght( strength );
         return true;
 
     }
     return false;
 }
 
+template <typename T>
+void Matrix<T>::Row::uniformize( int size ) {
+
+    Relation* rel_ptr = this->first_relation;
+
+    for ( int rel_i = 0; rel_i < size; rel_i++ ) {
+
+        if ( !rel_ptr ) {
+
+            rel_ptr = new Relation();
+
+        }
+        rel_ptr = rel_ptr->get_next();
+    }
+}
+
+template <typename T>
+Matrix<T>::Row::Relation* Matrix<T>::Row::find_rel( int elem_i ) {
+
+    Relation* rel_ptr = this->first_relation;
+    int r_index = 0;
+
+    while ( rel_ptr
+    && r_index < elem_i ) {
+
+        rel_ptr = rel_ptr->get_next();
+
+    }
+
+    if ( rel_ptr ) {
+
+        return rel_ptr;
+
+    }
+    return nullptr;
+}
+
+template <typename T>
+void Matrix<T>::Row::print_row( ostream& out ) {
+
+    Relation* rel_ptr = this->first_relation;
+
+    out << setw( 25 ) << this->elem << setw( 3 ) << " : ";
+
+    while ( rel_ptr ) {
+
+        out << setw( 3 ) << rel_ptr->get_relation_strenght();
+        rel_ptr = rel_ptr->get_next();
+
+    }
+    out << endl;
+}
+
 /*
-    Matrix Constructors & Destructors
+    --------------------------------------------------------
+    MATRIX CLASS
 */
 
-template <typename Element>
-Matrix<Element>::Matrix( int size, bool is_symmetrical ) {
+template <typename T>
+Matrix<T>::Matrix( bool is_symmetrical ) {
 
-    this->first_row = nullptr;
-    this->size = size;
+    this->size = 0;
     this->is_symmetrical = is_symmetrical;
+    this->first_row = nullptr;
+    this->last_row = nullptr;
 }
 
-template <typename Element>
-Matrix<Element>::~Matrix() {
+template <typename T>
+Matrix<T>::~Matrix() { 
 
-    for ( int row = this->size; row >= 0; row-- ) {
+    Row* r_ptr = this->first_row;
 
-        this->remove( row );
+    while ( this->first_row ) {
+
+        while ( r_ptr->get_next()->get_next() ) {
+
+            r_ptr = r_ptr->get_next();
+
+        }
+        delete r_ptr->get_next();
+        r_ptr->set_next( nullptr );
 
     }
 }
 
-/*
-    Matrix Row Management
-*/
+template <typename T>
+void Matrix<T>::add( T* elem ) {
 
-template <typename Element>
-void Matrix<Element>::add( Element* element ) {
-    
+    if ( this->first_row ) {
+
+        this->last_row->set_next( new Row( elem ) );
+        this->last_row = this->last_row->get_next();
+
+    } else {
+
+        this->first_row = new Row( elem );
+        this->last_row = this->first_row;
+
+    }
     this->size++;
-    if ( this->first_row ) {
+    this->fill_rows();
+}
 
-        this->bottom_row->set_next( new Row( element, this->size ) );
-        this->bottom_row = this->bottom_row->get_next();
+template <typename T>
+void Matrix<T>::fill_rows() {
 
-    } else {
+    Row* r_ptr = this->first_row;
 
-        this->first_row = new Row( element, this->size );
-        this->first_row = this->bottom_row;
+    while ( r_ptr ) {
+
+        r_ptr->uniformize( this->size );
+        r_ptr = r_ptr->get_next();
 
     }
 }
 
-template <typename Element>
-Matrix<Element>::Row* Matrix<Element>::find_row( int row_index ) {
+template <typename T>
+Matrix<T>::Row* Matrix<T>::find_row( int i_elem ) {
 
     if ( this->first_row ) {
 
-        if ( row_index == 0 ) {
+        Row* r_ptr = this->first_row;
+        int i = 0;
 
-            return this->first_row;
+        while ( r_ptr
+        && i < i_elem ) {
 
-        } else {
+            r_ptr = r_ptr->get_next();
 
-            Row* row_iterator = this->first_row;
-            int index_row_iterator = 0;
-
-            while ( row_iterator 
-            && index_row_iterator == row_index ) {
-                
-                row_iterator = row_iterator->get_next();
-                index_row_iterator++;
-
-            }
-
-            if ( row_iterator ) {
-
-                return row_iterator;
-
-            }
-            return nullptr;   
         }
+        return r_ptr;
     }
     return nullptr;
 }
 
-template <typename Element>
-Element* Matrix<Element>::find_element( int row_index ) {
+template <typename T>
+bool Matrix<T>::remove( int i_elem ) {
 
-    if ( this->first_row ) {
+    Row* r_ptr = nullptr;
 
-        if ( row_index == 0 ) {
+    if ( i_elem == 0 ) {
+        
+        r_ptr = this->first_row;
+        this->first_row = this->first_row->get_next();
+        delete r_ptr;
+        this->size--;
+        return true;
+        
+    } else if ( i_elem < this->size ) {
 
-            return this->first_row->ge;
+        Row* row_before = this->find_row( i_elem - 1 );
+        r_ptr = row_before->get_next();
+        row_before->set_next( r_ptr->get_next() );
+        delete r_ptr;
+        this->size--;
+        return true;
 
-        } else {
-
-            Row* row_iterator = this->first_row;
-            int index_row_iterator = 0;
-
-            while ( row_iterator 
-            && index_row_iterator == row_index ) {
-                
-                row_iterator = row_iterator->get_next();
-                index_row_iterator++;
-
-            }
-
-            if ( row_iterator ) {
-
-                return row_iterator;
-
-            }
-            return nullptr;
-            
-        }
     }
-    return nullptr;
+    return false;
 }
 
-template <typename Element>
-Element* Matrix<Element>::remove( int row_index ) {
+template <typename T>
+bool Matrix<T>::modify( int i_first_elem, int i_second_elem, int strength ) {
 
-    Row* row_iterator;
+    Row* r_ptr = this->find_row( i_first_elem );
 
-    if ( row_index == 0 ) {
+    if ( r_ptr ) {
 
-        row_iterator = this->first_row;
-        this->first_row  = this->first_row->get_next();
-        row_ptr->set_next( nullptr );
+        return r_ptr->set_relation( i_second_elem, strength );
 
-    } else {
-
-        row_iterator = this->find_element( row_index );
-
-        if ( row_iterator ) {
-
-            Row* previous_row_iterator = this->find_element( row_index - 1 );
-            previous_row_iterator->set_next( row_iterator->get_next() );
-            row_iterator->set_next( nullptr );
-
-        }
     }
-    return row_iterator;
+    return false;
+}
+
+template <typename T>
+void Matrix<T>::print_matrix( ostream& out ) {
+
+    Row* r_ptr = this->first_row;
+
+    while ( r_ptr ) {
+
+        r_ptr->print_row( out );
+        r_ptr = r_ptr->get_next();
+
+    }
+}
+
+template <typename T>
+void Matrix<T>::operator+= ( T* elem ) {
+
+    this->add( elem );
 
 }
 
-template <typename Element>
-bool Matrix<Element>::modify( int row, int collumn, int modified_relationship ) {
-
-    
+template <typename T>
+ostream& operator<<( ostream& out, const Matrix<T>* matrix ) {
+    /*
+        Asumes that the element has a << operator
+    */
+    matrix->print_matrix( out );
+    return out;
 
 }

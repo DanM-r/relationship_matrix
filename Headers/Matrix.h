@@ -2,109 +2,98 @@
 #define MATRIX_H
 	
 	// Libraries
+	#include <iostream>
+	#include <iomanip>
 	
 	// Files
 	
 	// Using
+	using std::ostream;
+	using std::cout;
+	using std::endl;
+	using std::setfill;
+	using std::setw;
+	using std::left;
 	
-	template <typename Element>
+	/**
+	 * Relationship matrix class
+	*/
+	template <typename T>
 	class Matrix {
 
 		class Row {
 
-			class Relationship {
+			class Relation {
 
-				int value;
-				Relationship* next;
+				int relation_strenght;
+				Relation* next;
 
 				public:
 
-					Relationship();
-					~Relationship();
+					Relation();
+					~Relation();
 
-					Relationship* get_next();
-					void set_next( Relationship* next );
+					Relation* get_next();
+					int get_relation_strenght();
+
+					void set_next( Relation* next );
+					void set_relation_strenght( int relation_strenght );
 
 			};
 
-			int size;
-			Element* element;
-			Relationship* first_collumn;
+			T* elem;
+			Relation* first_relation;
 			Row* next;
 
-			/**
-			 * Initializes the relationship values given the size number
-			*/
-			void init_relationships();
+			Relation* find_rel( int elem_i );
 
 			public:
 
-				Row( Element* element, int size );
+				Row( T* elem );
 				~Row();
 
 				Row* get_next();
+				T* get_elem();
+				int get_relation( int elem_i );
+
 				void set_next( Row* next );
-				
-				/**
-				 * Removes the 
-				*/
-				bool remove( int collumn );
+				void set_elem( T* elem );
+				bool set_relation( int i_elem, int strength );
+
+				void uniformize( int size );
+				void print_row( ostream& out );
 
 		};
 		
 		int size;
 		bool is_symmetrical;
 		Row* first_row;
-		Row* bottom_row;
+		Row* last_row;
+
+		Row* find_row( int i_elem );
+
+		void fill_rows();
 
 		public:
 
-			Matrix( int size, bool is_symmetrical );
+			Matrix( bool is_symmetrical );
 			~Matrix();
 
-			/**
-			 * Adds an element to the matrix.
-			 * 
-			 * @param new_element The element to be added.
-			*/
-			void add( Element* new_element );
+			void add( T* elem );
 
-			/**
-			 * Extracts an element from the matrix.
-			 * 
-			 * @param row_index the row of the element
-			 * @return The element that was taken.
-			*/
-			Element* remove( int row_index );
+			bool remove( int i_elem );
 
-			/**
-			 * Finds the element of a row.
-			 * 
-			 * @param row_index the index to the row where the element is stored.
-			 * @return The element of the row.
-			*/
-			Element* find_element( int row_index );
+			bool modify( int i_first_elem, int i_second_elem, int strength );
 
-			/**
-			 * Finds the row
-			 * 
-			 * @param row_index the index to the row.
-			 * @return the row to the index.
-			*/
-			Row* find_row( int row_index );
+			void print_matrix( ostream& out );
 
-			/**
-			 * Modifies the relationship value
-			 * 
-			 * @param row the row of the element
-			 * @param collumn the collumn of the relatonship
-			 * @param modified_relationship the new value of the relationship.
-			 * @return true if the modification was succesfull, false otherwise.
-			*/
-			bool modify( int row, int collumn, int modified_relationship );
+			void operator+= ( T* elem );
+
+			template <typename U>
+			friend ostream& operator<< ( ostream& out, const Matrix<U>* matrix );
 	
 	};
-
-	//template class Matrix<int>;
+		
+	template class Matrix<int>;
 
 #endif

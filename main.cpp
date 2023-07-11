@@ -1,10 +1,12 @@
 
 #include <iostream>
 
-using std::cout;
-using std::endl;
+#include "./Headers/Matrix.h"
 
 int main() {
-	cout << "Hello, World" << endl;
+	Matrix<int>* m = new Matrix<int>( false );
+	int* value = new int( 3 );
+	*m += value;
+	std::cout << m;
 	return 0;
 }
