@@ -1,99 +1,107 @@
-#ifndef MATRIX_H
-#define MATRIX_H
-	
-	// Libraries
-	#include <iostream>
-	#include <iomanip>
-	
-	// Files
-	
-	// Using
-	using std::ostream;
-	using std::cout;
-	using std::endl;
-	using std::setfill;
-	using std::setw;
-	using std::left;
-	
-	/**
-	 * Relationship matrix class
-	*/
-	template <typename T>
-	class Matrix {
+#ifndef RELATIONSHIP_MATRIX_MATRIX_H
+#define RELATIONSHIP_MATRIX_MATRIX_H
 
-		class Row {
+    // Libraries
+    #include <iostream>
+    #include <iomanip>
 
-			class Relation {
+    // Files
+    #include "City.h"
+    #include "Employee.h"
+    #include "User.h"
 
-				int relation_strenght;
-				Relation* next;
+    // Using
+    using std::ostream;
+    using std::cout;
+    using std::endl;
+    using std::setfill;
+    using std::setw;
+    using std::left;
 
-				public:
+    /**
+     * Relationship matrix class
+    */
+    template <typename T>
+    class Matrix {
 
-					Relation();
-					~Relation();
+        class Row {
+            class Relation {
 
-					Relation* get_next();
-					int get_relation_strenght();
+                int relation_strength;
+                Relation* next_relation;
 
-					void set_next( Relation* next );
-					void set_relation_strenght( int relation_strenght );
+            public:
+                Relation();
+                ~Relation() = default;
 
-			};
+                Relation* get_next_relation();
+                int get_relation_strength();
+                void set_next_relation( Relation* next );
+                void set_relation_strength(int relation_strength );
+            };
 
-			T* elem;
-			Relation* first_relation;
-			Row* next;
+            T* elem;
+            Relation* first_relation;
+            Row* next_row;
 
-			Relation* find_rel( int elem_i );
+            Relation* find_rel( int elem_i );
 
-			public:
+        public:
 
-				Row( T* elem );
-				~Row();
+            Row( T* elem );
+            ~Row();
 
-				Row* get_next();
-				T* get_elem();
-				int get_relation( int elem_i );
+            Row* get_next_row();
+            T* get_elem();
+            int get_relation( int elem_i );
 
-				void set_next( Row* next );
-				void set_elem( T* elem );
-				bool set_relation( int i_elem, int strength );
+            void set_next_row( Row* next );
+            void set_elem( T* elem );
+            bool set_relation( int i_elem, int strength );
 
-				void uniformize( int size );
-				void print_row( ostream& out );
+            void uniformize( int size );
+            Relation* find_relation( int i_elem );
+            void remove_relations( int i_elem );
+            void print_row( ostream& out );
 
-		};
-		
-		int size;
-		bool is_symmetrical;
-		Row* first_row;
-		Row* last_row;
+        };
 
-		Row* find_row( int i_elem );
+        int size;
+        bool is_symmetrical;
+        Row* first_row;
+        Row* last_row;
 
-		void fill_rows();
+        Row* find_row( int i_elem );
 
-		public:
+        void fill_rows();
+        void empty_rows( int i_elem );
 
-			Matrix( bool is_symmetrical );
-			~Matrix();
+    public:
 
-			void add( T* elem );
+        Matrix( bool is_symmetrical );
+        ~Matrix();
 
-			bool remove( int i_elem );
+        /** Gets the index of the row where the element is in.
+         * @warning The element used must be able to use the == operator
+         * */
+        int get_id( T elem );
 
-			bool modify( int i_first_elem, int i_second_elem, int strength );
+        void add( T* elem );
 
-			void print_matrix( ostream& out );
+        bool remove( int i_elem );
 
-			void operator+= ( T* elem );
+        bool modify( int i_first_elem, int i_second_elem, int strength );
 
-			template <typename U>
-			friend ostream& operator<< ( ostream& out, const Matrix<U>* matrix );
-	
-	};
-		
-	template class Matrix<int>;
+        void print_matrix( ostream& out ) const;
 
-#endif
+        void operator+= ( T* elem );
+
+        template <typename U>
+        friend ostream& operator<< ( ostream& out, const Matrix<U>* matrix );
+
+    };
+    template class Matrix<City>;
+    template class Matrix<User>;
+    template class Matrix<Employee>;
+
+#endif //RELATIONSHIP_MATRIX_MATRIX_H
